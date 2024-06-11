@@ -1,13 +1,22 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import Notes from '../components/Notes.jsx'
-import { useSelector } from 'react-redux';
-import { selectBooks } from '../store/booksSlice.js';
+import { eraseBook, selectBooks, toggleRead } from '../store/booksSlice.js';
 
 function SingleBookPage() {
 
     const { id } = useParams();
     const books = useSelector(selectBooks);
     const book = books.filter(book => book.id == id)[0];
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    function handleEraseBook(id) {
+      if (confirm('Are you sure you want to erase this book?')) {
+        dispatch(eraseBook(id));
+        navigate('/');
+      }
+    }
     
     return (
       <>
@@ -17,8 +26,9 @@ function SingleBookPage() {
                       ← Back to Books
                   </button>
                 </Link>
-            
-            <div className="single-book">
+            { book ?
+              <div>
+                <div className="single-book">
                     <div className="book-cover">
                         <img src={book.cover} />
                     </div>
@@ -28,16 +38,28 @@ function SingleBookPage() {
                         <h4 className="book-author">{ book.author }</h4>
                         <p>{book.synopsis}</p>
                         <div className="read-checkbox">
-                            <input type="checkbox" defaultChecked={book.isRead} />
+                            <input 
+                              onClick={() => dispatch(toggleRead(book.id))}
+                              type="checkbox" 
+                              defaultChecked={book.isRead} 
+                            />
                             <label>{ book.isRead ? "Already Read It" : "Haven't Read it yet" }</label>
                         </div>
-                        <div className="erase-book">
+                        <div onClick={() => handleEraseBook(book.id)} className="erase-book">
                             Erase book
                         </div>
                     </div>
-            </div>
+                </div>
 
-            <Notes />
+                <Notes />
+              </div>
+              :
+              <div>
+                <p>Book not found. Click the button above to go back to the list of books.</p>
+              </div>
+
+            }
+            
 
         </div>
 

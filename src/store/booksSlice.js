@@ -46,10 +46,20 @@ export const booksSlice = createSlice({
         addBook: books => {
             // logic to add books
         },
+        eraseBook: (books, action) => {
+            return books.filter(book => book.id != action.payload);
+        },
+        toggleRead: (books, action) => {
+            books.map(book => {
+                if (book.id == action.payload) {
+                    book.isRead = !book.isRead;
+                }
+            });
+        }
     }
 })
 
-export const { addBook } = booksSlice.actions;
+export const { addBook, eraseBook, toggleRead } = booksSlice.actions;
 
 export const selectBooks = state => state.books;
 
